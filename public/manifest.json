@@ -1,0 +1,51 @@
+{
+  "name": "PawPrint",
+  "short_name": "PawPrint",
+  "description": "The world around your pet — discover, connect, compete, and transact with the pet community in Nairobi.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fefbf7",
+  "theme_color": "#f64a00",
+  "id": "/",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["social", "lifestyle", "shopping", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/pawprint-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/pawprint-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Discover Businesses",
+      "short_name": "Discover",
+      "description": "Browse pet businesses near you",
+      "url": "/discover"
+    },
+    {
+      "name": "Arena Competitions",
+      "short_name": "Arena",
+      "description": "Enter pets and vote in competitions",
+      "url": "/arena"
+    },
+    {
+      "name": "My Profile",
+      "short_name": "Profile",
+      "description": "Manage your profile, pets and rewards",
+      "url": "/profile"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

@@ -1,0 +1,17 @@
+{
+  "name": "pawprint-pwa",
+  "version": "1.0.0",
+  "description": "PawPrint — mobile-first PWA for pet owners and businesses in Nairobi",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": ["pwa", "progressive-web-app", "offline", "pets", "nairobi"],
+  "author": "OpenCode",
+  "license": "MIT"
+}

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#fefbf7">
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <script>
+    // Apply the saved theme before first paint (no flash)
+    try {
+      var t = localStorage.getItem('pawprint_theme');
+      if (t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) { /* ignore */ }
+  </script>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="PawPrint">
+  <meta name="description" content="The world around your pet — discover, connect, compete, and transact with the pet community in Nairobi.">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/pawprint-192.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <title>PawPrint — The world around your pet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Offline indicator -->
+  <div id="offline-banner" class="offline-banner hidden">
+    <span class="offline-dot"></span>
+    <span>You're offline — showing the last loaded content</span>
+  </div>
+
+  <!-- Install PWA banner -->
+  <div id="install-banner" class="install-banner hidden">
+    <span class="install-banner-text">Install PawPrint as an app</span>
+    <button id="install-btn" class="install-btn">Install</button>
+    <button id="install-dismiss" class="install-dismiss" aria-label="Dismiss">✕</button>
+  </div>
+
+  <div id="app">
+    <!-- Auth screens (login / register) render here -->
+    <div id="auth-root"></div>
+
+    <!-- Feature tour overlay -->
+    <div id="tour-root" style="display:none"></div>
+
+    <!-- Main app shell -->
+    <div id="shell" class="pp-shell hidden">
+      <!-- Mobile header -->
+      <header class="pp-mobile-header">
+        <a href="/" class="pp-brand" data-route="/" aria-label="PawPrint home">
+          <span class="pp-brand-mark" id="mobile-brand-mark"></span>
+          <span>pawprint<span class="pp-brand-period">.</span></span>
+        </a>
+        <div class="pp-mobile-actions">
+          <a href="/messages" class="pp-icon-link" data-route="/messages" aria-label="Messages"><span id="mobile-messages-icon"></span><span class="pp-notification-dot" id="mobile-messages-dot" style="display:none"></span></a>
+          <button class="pp-icon-link js-notifications-btn" aria-label="Notifications"><span id="mobile-bell-icon"></span><span class="notif-badge" id="notif-badge" style="display:none"></span></button>
+          <a href="/profile" class="pp-mobile-avatar" data-route="/profile" id="user-avatar" aria-label="Your profile">U</a>
+        </div>
+      </header>
+
+      <!-- Desktop left rail -->
+      <aside class="pp-rail">
+        <a href="/" class="pp-brand pp-rail-brand" data-route="/" aria-label="PawPrint home">
+          <span class="pp-brand-mark" id="rail-brand-mark"></span>
+          <span>pawprint<span class="pp-brand-period">.</span></span>
+        </a>
+        <div class="pp-rail-location"><span id="rail-pin-icon"></span> Nairobi, Kenya <span class="rail-chevron" id="rail-chevron-icon"></span></div>
+        <p class="pp-rail-label">YOUR WORLD</p>
+        <nav class="pp-rail-nav" aria-label="Main navigation" id="rail-nav"></nav>
+        <a href="/arena" class="pp-rail-challenge" data-route="/arena">
+          <span class="pp-challenge-icon" id="rail-challenge-icon"></span>
+          <span class="pp-rail-challenge-copy"><strong>This week</strong><span>Cutest pet contest</span></span>
+          <span class="rail-arrow" id="rail-arrow-icon"></span>
+        </a>
+        <p class="pp-rail-label pp-rail-label-more">MORE</p>
+        <nav class="pp-rail-more" aria-label="More destinations" id="rail-more"></nav>
+        <div class="pp-rail-bottom">
+          <a href="/pet-profile" class="pp-rail-join" data-route="/pet-profile"><span id="rail-join-icon"></span> Add your pet</a>
+          <a href="/profile" class="pp-rail-signin" data-route="/profile">
+            <span class="pp-owner-avatar" id="rail-avatar">U</span>
+            <span><strong id="rail-user-name">Join the pack</strong><small id="rail-user-sub">Sign in or create an account</small></span>
+            <span class="rail-chevron" id="rail-chevron-2"></span>
+          </a>
+          <div class="pp-rail-footnote"><span id="rail-help-icon"></span> A little more joy for every pet.</div>
+        </div>
+      </aside>
+
+      <!-- Main content -->
+      <div class="pp-main-wrap">
+        <div class="pp-topbar">
+          <div class="pp-topbar-context"><span class="pp-online-dot"></span> Nairobi pet community</div>
+          <div class="pp-topbar-right">
+            <a href="/rewards" class="pp-points-pill" data-route="/rewards" aria-label="PawPoints balance"><span id="topbar-sparkles"></span> <span>Earn PawPoints</span></a>
+            <button class="pp-icon-link js-theme-toggle" aria-label="Toggle dark mode"></button>
+            <a href="/messages" class="pp-icon-link pp-desktop-notification" data-route="/messages" aria-label="Messages"><span id="topbar-messages-icon"></span><span class="pp-notification-dot" id="messages-dot" style="display:none"></span></a>
+            <button class="pp-icon-link js-notifications-btn pp-desktop-notification" aria-label="Notifications"><span id="topbar-bell"></span><span class="pp-notification-dot" id="notif-dot" style="display:none"></span></button>
+            <a href="/pet-profile" class="pp-top-join" data-route="/pet-profile"><span id="topbar-join-link"><span class="pp-top-join-label">Join the pack</span></span></a>
+          </div>
+        </div>
+        <main class="pp-page-content" id="app-main"></main>
+      </div>
+
+      <!-- Mobile bottom nav -->
+      <nav class="pp-bottom-nav" aria-label="Mobile navigation" id="bottom-nav"></nav>
+
+      <!-- More sheet (mobile destinations beyond the five primary) -->
+      <div class="pp-more-sheet" id="more-sheet" hidden role="dialog" aria-modal="true" aria-label="More destinations">
+        <div class="pp-more-sheet-head">
+          <strong>More on PawPrint</strong>
+          <button class="pp-more-sheet-close" id="more-sheet-close" aria-label="Close">✕</button>
+        </div>
+        <div class="pp-more-grid" id="more-sheet-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script>
+    // Register service worker (fresh registrations on every load keep dev simple)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', async () => {
+        try {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map((reg) => reg.unregister()));
+        } catch (e) { /* ignore */ }
+        navigator.serviceWorker.register('/service-worker.js')
+          .then((reg) => console.log('[SW] Registered:', reg.scope))
+          .catch((err) => console.error('[SW] Registration failed:', err));
+      });
+    }
+
+    // PWA install prompt
+    let deferredInstallPrompt = null;
+    const installBanner = document.getElementById('install-banner');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      setTimeout(() => installBanner.classList.remove('hidden'), 2500);
+    });
+    document.getElementById('install-btn').addEventListener('click', async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        installBanner.classList.add('hidden');
+      }
+    });
+    document.getElementById('install-dismiss').addEventListener('click', () => installBanner.classList.add('hidden'));
+
+    // Online/offline banner
+    const offlineBanner = document.getElementById('offline-banner');
+    function updateOfflineBanner() { offlineBanner.classList.toggle('hidden', navigator.onLine); }
+    window.addEventListener('online', updateOfflineBanner);
+    window.addEventListener('offline', updateOfflineBanner);
+    updateOfflineBanner();
+
+    // Global toast helper (used before modules load)
+    window.showToast = function(message, options = {}) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      if (options.action) {
+        const btn = document.createElement('button');
+        btn.className = 'toast-action';
+        btn.textContent = options.action;
+        btn.addEventListener('click', () => {
+          if (options.onAction) options.onAction();
+          container.removeChild(toast);
+        });
+        toast.appendChild(btn);
+      }
+      container.appendChild(toast);
+      setTimeout(() => { if (toast.parentNode) container.removeChild(toast); }, 5000);
+    };
+  </script>
+
+  <!-- Application entry point (ES module) -->
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
