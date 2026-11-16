@@ -385,7 +385,7 @@ export const ArenaPage = {
           return `
             <article class="pp-finalist-card">
               <a href="/profile" class="pp-finalist-photo" data-route="/profile">
-                <img src="${photo}" alt="${escapeHtml(name)}, a contest finalist" loading="lazy" />
+                <img src="${photo}" alt="${escapeHtml(name)}, a contest finalist" loading="lazy" data-lightbox="finalists" data-lightbox-src="${photo}" data-lightbox-caption="${escapeHtml(name)}" />
                 ${index === 0 ? `<span class="pp-rank-badge">${icon('award', 13)} TOP VOTE GETTER</span>` : ''}
                 ${isMine ? `<span class="pp-rank-badge pp-rank-mine">${icon('paw-print', 13)} YOUR PET</span>` : ''}
               </a>

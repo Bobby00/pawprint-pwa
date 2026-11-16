@@ -545,6 +545,29 @@ async function seedIfEmpty() {
     await seedShowdowns();
     await seedPetPhotos();
 
+    // Backfill event data introduced with paid tickets
+    const existingEvents = await dbGetAll('events');
+    if (!existingEvents.some((e) => e.title === 'PawPrint Grooming Workshop')) {
+      await dbPut('events', {
+        title: 'PawPrint Grooming Workshop',
+        description: 'Hands-on grooming training with Groom & Glow — nail trimming, coat care, safe handling. Certificate of completion.',
+        location: 'Groom & Glow Pet Salon, Sarit Centre, Nairobi',
+        date: new Date(Date.now() + 12 * 86400000).toISOString(),
+        organiser: 'Groom & Glow Pet Salon',
+        capacity: 12,
+        registrations: 5,
+        priceKes: 1500,
+        createdAt: new Date().toISOString(),
+      });
+    } else {
+      for (const e of existingEvents) {
+        if (!e.priceKes && e.title === 'PawPrint Grooming Workshop') {
+          e.priceKes = 1500;
+          await dbPut('events', e);
+        }
+      }
+    }
+
     return;
   }
 
@@ -1111,6 +1134,19 @@ async function seedIfEmpty() {
     organiser: 'Nairobi Dog Walkers',
     capacity: 30,
     registrations: 8,
+    createdAt: now,
+  });
+  // A paid community event (doc §5.28: pay-to-book support)
+  await dbPut('events', {
+    id: 3,
+    title: 'PawPrint Grooming Workshop',
+    description: 'Hands-on grooming training with Groom & Glow — nail trimming, coat care, safe handling. Certificate of completion.',
+    location: 'Groom & Glow Pet Salon, Sarit Centre, Nairobi',
+    date: new Date(Date.now() + 12 * 86400000).toISOString(),
+    organiser: 'Groom & Glow Pet Salon',
+    capacity: 12,
+    registrations: 5,
+    priceKes: 1500,
     createdAt: now,
   });
 

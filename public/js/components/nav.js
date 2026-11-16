@@ -58,8 +58,8 @@ export const Nav = {
     const railMore = document.getElementById('rail-more');
     if (railMore) {
       railMore.innerHTML = visible.map(({ label, to, icon: name }) => `
-        <a href="${to}" class="pp-rail-more-link" data-route="${to}">
-          ${icon(name, 16)}<span>${label}</span>
+        <a href="${to}" class="pp-rail-more-link" data-route="${to}" data-more-to="${to}">
+          ${icon(name, 16)}<span>${label}</span><span class="pp-count-badge" data-count-for="${to}" hidden>0</span>
         </a>
       `).join('');
     }
@@ -67,12 +67,44 @@ export const Nav = {
     const grid = document.getElementById('more-sheet-grid');
     if (grid) {
       grid.innerHTML = visible.map(({ label, to, icon: name }) => `
-        <a href="${to}" class="pp-more-tile" data-route="${to}">
-          <span class="pp-more-tile-icon">${icon(name, 22)}</span>
+        <a href="${to}" class="pp-more-tile" data-route="${to}" data-more-to="${to}">
+          <span class="pp-more-tile-icon">${icon(name, 22)}<span class="pp-count-badge pp-count-badge-on-icon" data-count-for="${to}" hidden>0</span></span>
           <span>${label}</span>
         </a>
       `).join('');
     }
+  },
+
+  /** Refresh the unread-count badges on MORE items + notification bell. */
+  async refreshNavCounts() {
+    const set = (route, count) => {
+      document.querySelectorAll(`[data-count-for="${route}"]`).forEach((el) => {
+        el.textContent = String(count);
+        el.hidden = count <= 0;
+      });
+    };
+    try {
+      const user = window.Auth?.user;
+      if (!user) { ['/messages', '/challenges', '/adopt', '/rewards'].forEach((r) => set(r, 0)); return; }
+      const { dbGetByIndex, dbGetAll } = await import('../db.js');
+      const [unreadMessages, _unreadNotifs, allChallenges, participations, allRewards, allAdoptions] = await Promise.all([
+        dbGetByIndex('messages', 'toUserId', user.id).then((m) => m.filter((x) => !x.read).length),
+        dbGetByIndex('notifications', 'userId', user.id).then((n) => n.filter((x) => !x.read).length),
+        dbGetAll('challenges'),
+        dbGetByIndex('challengeParticipations', 'userId', user.id),
+        dbGetAll('rewards'),
+        dbGetAll('adoptions'),
+      ]);
+      const joinedUncompleted = participations.filter((p) => p.status === 'joined').length;
+      const myJoinable = allChallenges.filter((c) => {
+        const now = Date.now();
+        return new Date(c.endDate).getTime() > now;
+      }).length - participations.length;
+      set('/messages', unreadMessages);
+      set('/challenges', Math.max(0, myJoinable) + joinedUncompleted);
+      set('/adopt', allAdoptions.filter((a) => a.status === 'available').length);
+      set('/rewards', allRewards.filter((r) => r.available !== false).length);
+    } catch (e) { /* counts are best-effort */ }
   },
 
   _buildBottomNav() {
@@ -169,7 +201,7 @@ export const Nav = {
   },
 
   // Fill user identity into rail + mobile header after login
-  updateUser(user) {
+  async updateUser(user) {
     if (!user) return;
     const initial = (user.name || 'U').charAt(0).toUpperCase();
     const isAdmin = user.role === 'admin';
@@ -204,5 +236,6 @@ export const Nav = {
 
     // Role may have changed since init (e.g. fresh login on a seeded page)
     this._buildMoreLinks();
+    await this.refreshNavCounts();
   },
 };

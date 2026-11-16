@@ -5,6 +5,7 @@
 import { icon } from '../components/icons.js';
 import { escapeHtml } from '../components/sanitize.js';
 import { postMediaHtml, wireComposerMedia } from '../components/media.js';
+import { resolveLinksFor } from '../components/author-link.js';
 
 function timeAgo(iso) {
   const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
@@ -28,6 +29,7 @@ export const CommunityPage = {
     const allUsers = await dbGetAll('users');
     const avatarOf = (id) => (allUsers.find((u) => u.id === id) || {}).avatar || null;
     const followedUsers = await Follows.followingIds(user.id, 'user');
+    const enriched = await resolveLinksFor(posts);
     Follows.boostFollowed(posts, followedUsers);
     const communities = await dbGetAll('communities');
     const communityNames = new Map(communities.map((c) => [c.id, c.name]));
@@ -84,12 +86,12 @@ export const CommunityPage = {
           <input type="file" id="community-media-input" accept="image/*,video/*" multiple hidden>
         </div>
         <div id="community-feed">
-          ${posts.slice(0, 5).map((p) => `
+          ${enriched.slice(0, 5).map((p) => `
             <article class="pp-post" data-post="${p.id}">
               ${p.communityId ? `<a class="pp-pack-badge" href="/community/${p.communityId}" data-route="/community/${p.communityId}">${icon('users', 11)} ${escapeHtml(communityNames.get(p.communityId) || 'Local pack')}</a>` : ''}
               <div class="pp-post-head">
                 ${avatarHtml({ name: p.authorName, avatar: avatarOf(p.authorId) }, 'pp-post-avatar')}
-                <span class="pp-post-person"><strong>${p.authorName}</strong><span>${timeAgo(p.createdAt)}</span></span>
+                <span class="pp-post-person"><strong>${p._author ? `<a class="pp-author-link" href="${p._author.href}" data-route="${p._author.href}">${escapeHtml(p.authorName)}</a>` : escapeHtml(p.authorName)}</strong><span>${timeAgo(p.createdAt)}</span></span>
                 ${p.authorId && p.authorId !== user.id ? `<button class="pp-follow-btn js-follow-user ${followedUsers.includes(p.authorId) ? 'is-followed' : ''}" data-id="${p.authorId}">${followedUsers.includes(p.authorId) ? 'Following' : 'Follow'}</button><button class="pp-message-mini js-message-user" data-id="${p.authorId}" aria-label="Message ${p.authorName}">${icon('message-circle', 13)}</button>` : ''}
                 ${p.authorId === user.id
                   ? `<span class="pp-post-owner-actions"><button class="pp-more-button js-edit-post" data-id="${p.id}" aria-label="Edit post">${icon('pen', 16)}</button><button class="pp-more-button js-delete-post" data-id="${p.id}" aria-label="Delete post">${icon('trash', 16)}</button></span>`

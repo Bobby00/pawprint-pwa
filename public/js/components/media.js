@@ -39,7 +39,7 @@ export function postMediaHtml(post) {
     <div class="${gridClass}">
       ${media.map((m) => m.type === 'video'
         ? `<video class="pp-media-video" src="${m.url}" controls preload="metadata" aria-label="Attached video"></video>`
-        : `<img class="pp-media-image" src="${m.url}" alt="${escapeHtml(m.name || 'Post image')}" loading="lazy" />`
+        : `<img class="pp-media-image" src="${m.url}" alt="${escapeHtml(m.name || 'Post image')}" loading="lazy" data-lightbox="post-${post.id}" data-lightbox-src="${m.url}" data-lightbox-caption="${escapeHtml(m.name || 'Post image')}" />`
       ).join('')}
     </div>
   `;

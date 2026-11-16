@@ -8,6 +8,7 @@ import { NotificationUI } from './components/notification.js';
 import { FeatureTour } from './components/feature-tour.js';
 import { Theme } from './components/theme.js';
 import { seedIfEmpty } from './db.js';
+import './components/lightbox.js';
 
 // Pages
 import { LoginPage } from './pages/login.js';
@@ -28,6 +29,7 @@ import { SettingsPage } from './pages/settings.js';
 import { MessagesPage, refreshMessageBadge } from './pages/messages.js';
 import { AdoptPage } from './pages/adopt.js';
 import { RegisterBusinessPage } from './pages/register-business.js';
+import { PublicProfilePage } from './pages/public-profile.js';
 
 import { registerRoute, navigateTo, renderRoute, startRouter } from './router.js';
 
@@ -51,6 +53,7 @@ registerRoute('/messages', MessagesPage);
 registerRoute('/messages/:userId', MessagesPage);
 registerRoute('/adopt', AdoptPage);
 registerRoute('/register-business', RegisterBusinessPage);
+registerRoute('/u/:id', PublicProfilePage);
 registerRoute('/profile', ProfilePage);
 registerRoute('/pet-profile', PetProfilePage);
 registerRoute('/business/:id', BusinessProfilePage);
@@ -75,8 +78,9 @@ window.__onAuthed = async () => {
   const authRoot = document.getElementById('auth-root');
   authRoot.innerHTML = '';
   shell.classList.remove('hidden');
-  Nav.updateUser(window.Auth.user);
+  await Nav.updateUser(window.Auth.user);
   await Nav.refreshPointsPill();
+  await Nav.refreshNavCounts();
   await NotificationUI.refreshBadge();
   await renderRoute('/');
   showTourOnce();
@@ -88,10 +92,11 @@ async function init() {
   Nav.init();
   NotificationUI.init();
   await NotificationUI.refreshBadge();
+  await Nav.refreshNavCounts();
   await refreshMessageBadge();
   await Nav.refreshPointsPill();
   if (window.Auth.isAuthenticated()) {
-    Nav.updateUser(window.Auth.user);
+    await Nav.updateUser(window.Auth.user);
     shellVisible();
   }
   startRouter();

@@ -3,10 +3,10 @@
 // Offline-first caching strategy for the PawPrint PWA
 // ============================================================================
 
-const CACHE_NAME = 'pawprint-v27';
-const STATIC_CACHE = 'pawprint-static-v27';
-const IMAGE_CACHE = 'pawprint-images-v27';
-const API_CACHE = 'pawprint-api-v27';
+const CACHE_NAME = 'pawprint-v30';
+const STATIC_CACHE = 'pawprint-static-v30';
+const IMAGE_CACHE = 'pawprint-images-v30';
+const API_CACHE = 'pawprint-api-v30';
 
 // Static assets to cache on install (app shell)
 const STATIC_ASSETS = [
@@ -52,6 +52,8 @@ const STATIC_ASSETS = [
   '/js/pages/admin.js',
   '/js/pages/rewards.js',
   '/js/pages/dashboard.js',
+  '/js/pages/public-profile.js',
+  '/js/components/lightbox.js',
   '/js/pages/community-detail.js',
   '/js/pages/challenges.js',
   '/js/pages/settings.js',

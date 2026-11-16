@@ -9,6 +9,7 @@ import { escapeHtml } from '../components/sanitize.js';
 import { Comments } from '../components/comments.js';
 import { postMediaHtml, wireComposerMedia } from '../components/media.js';
 import { avatarHtml } from '../components/avatar.js';
+import { resolveLinksFor } from '../components/author-link.js';
 
 function timeAgo(iso) {
   const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
@@ -40,7 +41,8 @@ export const CommunityDetailPage = {
     const allPosts = await dbGetAll('posts');
     const { Follows } = await import('../components/follows.js');
     const followedUsers = user ? await Follows.followingIds(user.id, 'user') : [];
-    const rawPosts = allPosts.filter((p) => p.communityId === community.id);
+    const enriched = await resolveLinksFor(allPosts.filter((p) => p.communityId === community.id));
+    const rawPosts = enriched;
     const { Likes } = await import('../components/likes.js');
     const likedIds = await Likes.likedIdsFor(user.id, rawPosts);
     const users = await dbGetAll('users');
@@ -117,7 +119,7 @@ export const CommunityDetailPage = {
               ${p.pinned ? `<div class="pp-pinned-badge">${icon('star', 12)} Pinned by the organiser</div>` : ''}
               <div class="pp-post-head">
                 ${avatarHtml({ name: p.authorName, avatar: avatarOf(p.authorId) }, 'pp-post-avatar')}
-                <span class="pp-post-person"><strong>${p.authorName}</strong><span>${timeAgo(p.createdAt)}</span></span>
+                <span class="pp-post-person"><strong>${p._author ? `<a class="pp-author-link" href="${p._author.href}" data-route="${p._author.href}">${escapeHtml(p.authorName)}</a>` : escapeHtml(p.authorName)}</strong><span>${timeAgo(p.createdAt)}</span></span>
                 ${p.authorId && p.authorId !== user.id ? `<button class="pp-follow-btn js-follow-user ${followedUsers.includes(p.authorId) ? 'is-followed' : ''}" data-id="${p.authorId}">${followedUsers.includes(p.authorId) ? 'Following' : 'Follow'}</button><button class="pp-message-mini js-message-user" data-id="${p.authorId}" aria-label="Message ${p.authorName}">${icon('message-circle', 13)}</button>` : ''}
                 <span class="pp-post-head-actions">
                   ${canPin ? `<button class="pp-more-button js-pin" data-id="${p.id}" aria-label="${p.pinned ? 'Unpin' : 'Pin'} post">${icon('star', 17)}</button>` : ''}

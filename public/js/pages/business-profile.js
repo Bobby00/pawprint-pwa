@@ -70,7 +70,7 @@ export const BusinessProfilePage = {
         </section>
 
         <div class="pp-gallery" aria-label="Business photos">
-          ${gallery.map((g) => `<img src="${g}" alt="${business.name}" loading="lazy" />`).join('')}
+          ${gallery.map((g, i) => `<img src="${g}" alt="${business.name} photo ${i + 1}" loading="lazy" data-lightbox="business-${business.id}" data-lightbox-src="${g}" data-lightbox-caption="${escapeHtml(business.name)}" />`).join('')}
         </div>
 
         <div class="pp-details-grid">
@@ -147,7 +147,7 @@ export const BusinessProfilePage = {
                 <span class="pp-post-person"><strong>${escapeHtml(r.userName || (r.verified ? 'Verified customer' : 'Customer'))}</strong><span>${icon('star', 10, { fill: 'currentColor' })} ${r.rating}/5 · ${r.verified ? 'Verified visit' : 'Community review'} · ${this._relativeDate(r.createdAt)}</span></span>
               </div>
               <p class="pp-post-copy">${escapeHtml(r.comment)}</p>
-              ${r.photos && r.photos.length ? `<div class="pp-review-photos">${r.photos.map((p) => `<img class="pp-review-photo-img" src="${p.url}" alt="Review photo" loading="lazy" />`).join('')}</div>` : ''}
+              ${r.photos && r.photos.length ? `<div class="pp-review-photos">${r.photos.map((p, i) => `<img class="pp-review-photo-img" src="${p.url}" alt="Review photo ${i + 1}" loading="lazy" data-lightbox="review-${r.id}" data-lightbox-src="${p.url}" data-lightbox-caption="Photo from ${escapeHtml(r.userName || 'a customer')}" />`).join('')}</div>` : ''}
               ${r.response ? `
                 <div class="pp-review-response">
                   <strong>${icon('check', 12)} Response from ${business.name}</strong>

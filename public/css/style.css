@@ -142,7 +142,7 @@ html.dark {
 .pp-nav-link { display: flex; min-height: 46px; align-items: center; gap: 13px; border-radius: 7px; padding: 0 12px; color: var(--pp-muted); font-size: 14px; font-weight: 650; text-decoration: none; transition: background .18s ease, color .18s ease; }
 .pp-nav-link:hover, .pp-nav-link.is-active { background: var(--pp-soft); color: var(--pp-ink); }
 .pp-nav-link.is-active svg { color: var(--pp-orange); }
-.pp-nav-new { margin-left: auto; border-radius: 3px; background: var(--pp-yellow); padding: 3px 5px; color: var(--pp-ink); font-size: 8px; font-weight: 900; }
+.pp-nav-new { margin-left: auto; border-radius: 3px; background: var(--pp-yellow); padding: 3px 8px; color: var(--pp-ink-fixed); font-size: 8px; font-weight: 900; }
 .pp-rail-challenge { display: flex; align-items: center; gap: 10px; margin-top: 30px; border: 1px solid var(--pp-line); border-radius: 7px; padding: 11px 9px; color: var(--pp-ink); text-decoration: none; }
 .pp-challenge-icon { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border-radius: 6px; background: var(--pp-yellow); color: var(--pp-ink-fixed); }
 .pp-rail-challenge-copy { display: grid; min-width: 0; gap: 3px; }
@@ -317,7 +317,7 @@ html.dark {
 .pp-arena-feature { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; border-radius: 6px; background: var(--pp-yellow); color: var(--pp-ink-fixed); }
 .pp-arena-feature-image { position: relative; min-height: 300px; }
 .pp-arena-feature-image > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.pp-arena-live { position: absolute; top: 13px; left: 13px; display: inline-flex; align-items: center; gap: 6px; border-radius: 3px; background: var(--pp-white); padding: 7px 8px; font-size: 9px; font-weight: 850; }
+.pp-arena-live { position: absolute; top: 13px; left: 13px; display: inline-flex; align-items: center; gap: 6px; border-radius: 3px; background: var(--pp-yellow); color: var(--pp-ink-fixed); padding: 6px 10px; font-size: 9px; font-weight: 800; letter-spacing: .06em; }
 .pp-arena-live > span { width: 7px; height: 7px; border-radius: 50%; background: var(--pp-orange); }
 .pp-arena-feature-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(22px, 4vw, 44px); }
 .pp-feature-label { display: inline-flex; align-items: center; gap: 6px; font-size: 9px; font-weight: 850; letter-spacing: .07em; }
@@ -1090,7 +1090,8 @@ html.dark .pp-notification-dot { box-shadow: 0 0 0 2px var(--pp-paper); }
   .pp-messages-layout { grid-template-columns: 1fr; }
 }
 
-.pp-message-mini { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; border: 1px solid var(--pp-line); background: var(--pp-white); color: var(--pp-muted); cursor: pointer; }
+button.pp-message-mini { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; border: 1px solid var(--pp-line); background: var(--pp-white); color: var(--pp-muted); cursor: pointer; padding: 0; line-height: 0; font-size: 0; overflow: hidden; justify-content: center; align-items: center; }
+.pp-message-mini svg { display: block; }
 .pp-message-mini:hover { border-color: var(--pp-orange); color: var(--pp-orange); }
 
 /* Products section on business pages */
@@ -1266,3 +1267,65 @@ html.dark .pp-notification-dot { box-shadow: 0 0 0 2px var(--pp-paper); }
 .pp-payment-option { display: flex; align-items: center; gap: 9px; font-size: 11px; color: var(--pp-ink); cursor: pointer; padding: 3px 0; }
 .pp-payment-option input { accent-color: var(--pp-orange); }
 .pp-payment-option svg { color: var(--pp-orange); }
+
+/* Public user profile */
+.pp-public-profile { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; border: 1px solid var(--pp-line); border-radius: 10px; background: var(--pp-white); padding: 20px; margin-bottom: 22px; }
+.pp-public-avatar .pp-post-avatar { width: 88px; height: 88px; font-size: 30px; border-radius: 50%; }
+.pp-public-copy { display: grid; gap: 7px; }
+.pp-public-copy h1 { margin: 0; font: 750 22px var(--font-display); color: var(--pp-ink); }
+.pp-public-copy p { margin: 0; color: var(--pp-muted); font-size: 11px; }
+.pp-public-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+
+.pp-author-link { color: inherit; text-decoration: none; }
+.pp-author-link:hover { color: var(--pp-orange); text-decoration: underline; }
+
+/* Editable comments */
+.pp-comment-edit { border: 0; background: none; color: var(--pp-muted); padding: 4px; border-radius: 6px; cursor: pointer; align-self: flex-start; opacity: .65; }
+.pp-comment-edit:hover { color: var(--pp-orange); opacity: 1; }
+
+/* Count badges (bell + MORE links) */
+.pp-count-badge { display: grid; place-items: center; min-width: 17px; height: 17px; border-radius: 999px; background: var(--pp-red); color: var(--pp-cream-fixed); padding: 0 4px; font-size: 9px; font-weight: 800; line-height: 1; margin-left: auto; }
+.pp-count-badge-on-icon { position: absolute; top: -4px; right: -4px; margin: 0; background: var(--pp-red); color: var(--pp-cream-fixed); border: 2px solid var(--pp-white); }
+.pp-more-tile-icon { position: relative; }
+
+/* Lightbox (full-screen image viewer) */
+.pp-lightbox { position: fixed; inset: 0; z-index: 1000; background: oklch(0.08 0.005 60 / 0.92); display: grid; grid-template-columns: auto 1fr auto; align-items: center; justify-items: center; gap: 10px; padding: 20px; backdrop-filter: blur(4px); }
+.pp-lightbox-close { position: absolute; top: 14px; right: 16px; width: 40px; height: 40px; border: 0; border-radius: 10px; background: oklch(0.22 0.008 60 / 0.7); color: white; font-size: 16px; cursor: pointer; }
+.pp-lightbox-close:hover { background: oklch(0.28 0.008 60 / 0.9); }
+.pp-lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border: 0; border-radius: 999px; background: oklch(0.22 0.008 60 / 0.6); color: white; font-size: 26px; cursor: pointer; }
+.pp-lightbox-prev { left: 14px; }
+.pp-lightbox-next { right: 14px; }
+.pp-lightbox-nav:hover { background: oklch(0.28 0.008 60 / 0.9); }
+.pp-lightbox-frame { display: grid; gap: 12px; justify-items: center; }
+.pp-lightbox-image { max-width: 88vw; max-height: 78vh; border-radius: 10px; object-fit: contain; }
+.pp-lightbox-caption { color: oklch(0.9 0.01 80); font-size: 12px; font-weight: 600; min-height: 16px; text-align: center; }
+.pp-lightbox-counter { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); color: oklch(0.85 0.01 80); font-size: 11px; font-weight: 700; }
+
+/* Event rows + detail modal */
+.pp-side-event-row[type=button], .pp-side-event-row { width: 100%; border: 1px solid transparent; background: none; display: flex; align-items: flex-start; gap: 10px; border-radius: 8px; text-align: left; cursor: pointer; padding: 8px 8px; color: inherit; font: inherit; }
+.pp-side-event-row.is-soon { background: color-mix(in oklch, var(--pp-yellow) 16%, transparent); border-color: color-mix(in oklch, var(--pp-yellow) 55%, transparent); }
+.pp-side-event-row:hover { border-color: var(--pp-line); }
+.pp-event-price { color: var(--pp-orange); font-weight: 750; }
+.pp-event-free { color: var(--pp-green); font-weight: 800; }
+.pp-event-modal-body { display: grid; gap: 11px; padding-bottom: 6px; }
+.pp-event-detail-row { display: flex; align-items: center; gap: 10px; color: var(--pp-ink); font-size: 12px; }
+.pp-event-detail-row svg { color: var(--pp-orange); flex: 0 0 auto; }
+.pp-event-detail-desc { margin: 2px 0; color: var(--pp-muted); font-size: 12px; line-height: 1.6; }
+
+/* Author links (profile / business) */
+.pp-author-link { color: inherit; text-decoration: none; }
+.pp-author-link:hover { color: var(--pp-orange); text-decoration: underline; }
+
+/* Action "Enter contest" link styled like an action-button */
+.pp-enter-contest-action { text-decoration: none !important; cursor: pointer; }
+
+/* Requested baselines for feeds */
+.pp-home-layout .pp-side-event-row { text-decoration: none; }
+
+/* Notification badge on mobile bell (index.html overflow) */
+.pp-mobile-header .notif-dot { position: static; }
+.pp-mobile-header .pp-notification-dot { background: var(--pp-orange); width: 18px; height: 18px; font-size: 9px; padding: 0; }
+
+/* Bell count badge (desktop dot + mobile badge) — large enough for 2 digits */
+.pp-notification-dot { min-width: 18px; min-height: 18px; width: auto; height: 18px; padding: 0 5px; font-size: 10px; font-weight: 800; display: grid; place-items: center; border: 0; }
+.notif-badge { background: var(--pp-orange); color: var(--pp-cream-fixed); position: absolute; top: 2px; right: 2px; display: grid; place-items: center; min-width: 18px; min-height: 18px; padding: 0 5px; border-radius: 999px; font-size: 10px; font-weight: 800; line-height: 1; }

@@ -3,9 +3,11 @@
 // ============================================================================
 
 import { icon } from '../components/icons.js';
+import { escapeHtml } from '../components/sanitize.js';
 import { postMediaHtml } from '../components/media.js';
 import { avatarHtml } from '../components/avatar.js';
 import { Likes } from '../components/likes.js';
+import { resolveLinksFor } from '../components/author-link.js';
 
 function timeAgo(iso) {
   const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
@@ -20,15 +22,18 @@ function dayMonth(iso) {
   return { day: d.getDate(), mon: d.toLocaleDateString(undefined, { month: 'short' }).toUpperCase() };
 }
 
-function feedPost(p, { isContest = false, isFollowed = false, avatar = null, liked = false } = {}) {
+function feedPost(p, { isContest = false, isFollowed = false, avatar = null, liked = false, authorHref = null } = {}) {
   const initial = (p.authorName || '?').charAt(0).toUpperCase();
   const meId = window.Auth?.user?.id;
   const avatarField = avatar ? { name: p.authorName, avatar } : { name: p.authorName };
+  const authorInner = authorHref
+    ? `<a class="pp-author-link" href="${authorHref}" data-route="${authorHref}">${p.authorName}</a>`
+    : p.authorName;
   return `
     <article class="pp-post">
       <div class="pp-post-head">
         ${avatarHtml(avatarField, 'pp-post-avatar')}
-        <span class="pp-post-person"><strong>${p.authorName}</strong><span>@${(p.authorName || '').toLowerCase().replace(/\s+/g, '')} · ${timeAgo(p.createdAt)}</span></span>
+        <span class="pp-post-person"><strong>${authorInner}</strong><span>@${(p.authorName || '').toLowerCase().replace(/\s+/g, '')} · ${timeAgo(p.createdAt)}</span></span>
         ${p.authorId && p.authorId !== meId ? `<button class="pp-follow-btn js-follow-user ${isFollowed ? 'is-followed' : ''}" data-id="${p.authorId}">${isFollowed ? 'Following' : 'Follow'}</button><button class="pp-message-mini js-message-user" data-id="${p.authorId}" aria-label="Message ${p.authorName}">${icon('message-circle', 13)}</button>` : ''}
         <button class="pp-more-button" aria-label="More post options">${icon('menu', 18)}</button>
       </div>
@@ -39,7 +44,7 @@ function feedPost(p, { isContest = false, isFollowed = false, avatar = null, lik
       <div class="pp-post-actions">
         <button class="pp-action-button js-love ${liked ? 'is-liked' : ''}" data-id="${p.id}" aria-pressed="${liked}">${icon('heart', 18, liked ? { fill: 'currentColor' } : {})} Like</button>
         <button class="pp-action-button js-toggle-comments" data-id="${p.id}">${icon('message-circle', 18)} Comment</button>
-        <button class="pp-action-button pp-vote-action js-vote-post" data-id="${p.id}">${icon('vote', 18)} Vote</button>
+        <a class="pp-action-button pp-enter-contest-action" href="/arena" data-route="/arena">${icon('trophy', 18)} Enter contest</a>
         <button class="pp-action-button js-report" data-type="post" data-id="${p.id}">Report</button>
       </div>
       <div class="pp-comments-slot" data-slot="${p.id}" hidden></div>
@@ -58,6 +63,7 @@ export const HomePage = {
     const posts = await dbGetAll('posts');
     const allUsers = await dbGetAll('users');
     const avatarOf = (id) => (allUsers.find((u) => u.id === id) || {}).avatar || null;
+    const enriched = await resolveLinksFor(posts);
     const followedUsers = await Follows.followingIds(user.id, 'user');
     const likedIds = await Likes.likedIdsFor(user.id, posts);
     Follows.boostFollowed(posts, followedUsers);
@@ -140,16 +146,15 @@ export const HomePage = {
       const hoursLeft = Math.max(0, Math.round((new Date(e.date) - Date.now()) / 3600000));
       const soon = hoursLeft <= 36;
       return `
-        <div class="pp-side-event pp-side-event-row ${soon && going ? 'is-soon' : ''}">
+        <button class="pp-side-event pp-side-event-row js-event-open ${soon && going ? 'is-soon' : ''}" data-id="${e.id}">
           <span class="pp-event-date ${i % 2 ? 'is-yellow' : ''}"><strong>${d.day}</strong><small>${d.mon}</small></span>
           <span class="pp-event-info">
-            <strong>${e.title}</strong>
+            <strong>${escapeHtml(e.title)}</strong>
             <small>${icon('map-pin', 12)} ${e.location.split(',')[0]} · ${when}</small>
-            ${going ? `<button class="pp-btn pp-btn-sm pp-btn-outline pp-rsvp-button" disabled>${icon('check', 13)} Going${soon ? ` · starts soon` : ''}</button>` : `
-              <button class="pp-btn pp-btn-sm ${full ? 'pp-btn-ghost' : 'pp-btn-solid'} pp-rsvp-button js-rsvp" data-id="${e.id}" ${full ? 'disabled' : ''}>${full ? 'Event full' : `${icon('plus', 13)} RSVP`}</button>
-            `}
+            ${e.priceKes ? `<small class="pp-event-price">KES ${e.priceKes}</small>` : '<small class="pp-event-price pp-event-free">FREE</small>'}
           </span>
-        </div>`;
+          ${icon('chevron-right', 15)}
+        </button>`;
     }).join('') : '<p class="pp-empty-state">No upcoming events yet.</p>';
 
     container.innerHTML = `
@@ -171,9 +176,9 @@ export const HomePage = {
             ${communityStories}
           </div>
           <div class="pp-feed-label"><span>YOUR FEED</span><button class="pp-btn pp-btn-ghost pp-filter-button">${icon('settings', 15)} For you ${icon('chevron-right', 14)}</button></div>
-          ${posts.slice(0, 1).map((p) => feedPost(p, { isContest: true, isFollowed: followedUsers.includes(p.authorId), avatar: avatarOf(p.authorId), liked: likedIds.has(p.id) })).join('')}
+          ${enriched.slice(0, 1).map((p) => feedPost(p, { isContest: true, isFollowed: followedUsers.includes(p.authorId), avatar: avatarOf(p.authorId), liked: likedIds.has(p.id), authorHref: p._author?.href || null })).join('')}
           ${contestCard}
-          ${posts.slice(1, 4).map((p) => feedPost(p, { isFollowed: followedUsers.includes(p.authorId), avatar: avatarOf(p.authorId), liked: likedIds.has(p.id) })).join('')}
+          ${enriched.slice(1, 4).map((p) => feedPost(p, { isFollowed: followedUsers.includes(p.authorId), avatar: avatarOf(p.authorId), liked: likedIds.has(p.id), authorHref: p._author?.href || null })).join('')}
         </section>
         <aside class="pp-right-sidebar">
           <a href="/profile" class="pp-points-card" data-route="/profile">
@@ -241,18 +246,7 @@ export const HomePage = {
       });
     });
 
-    // Vote demo for non-love posts (still a counter demo)
-    container.querySelectorAll('.js-vote-post').forEach((btn) => {
-      btn.addEventListener('click', async () => {
-        const id = Number(btn.getAttribute('data-id'));
-        const { dbGet, dbPut } = await import('../db.js');
-        const post = await dbGet('posts', id);
-        if (!post) return;
-        post.comments = (post.comments || 0) + 1;
-        await dbPut('posts', post);
-        window.showToast('Comment coming soon');
-      });
-    });
+
 
     // Inline comments
     container.querySelectorAll('.js-toggle-comments').forEach((btn) => {
@@ -286,38 +280,120 @@ export const HomePage = {
       });
     });
 
-    // Event RSVPs (doc: attend a verified event earns PawPoints on check-in)
-    container.querySelectorAll('.js-rsvp').forEach((btn) => {
-      btn.addEventListener('click', async () => {
+    // Clicking an event opens the detail modal (doc §5.28: bookings + payment)
+    container.querySelectorAll('.js-event-open').forEach((btn) => {
+      btn.addEventListener('click', () => {
         const eventId = Number(btn.getAttribute('data-id'));
-        const { dbGet, dbGetByIndex, dbPut, dbDelete } = await import('../db.js');
-        const event = await dbGet('events', eventId);
-        if (!event) return;
-
-        const mine = await dbGetByIndex('eventRsvps', 'userId', user.id);
-        const existing = mine.find((r) => r.eventId === eventId);
-
-        if (existing) {
-          await dbDelete('eventRsvps', existing.id);
-          event.registrations = Math.max(0, (event.registrations || 1) - 1);
-          await dbPut('events', event);
-          window.showToast('RSVP cancelled');
-        } else {
-          if (event.capacity && (event.registrations || 0) >= event.capacity) {
-            window.showToast('This event is full.');
-            return;
-          }
-          await dbPut('eventRsvps', { eventId, userId: user.id, createdAt: new Date().toISOString() });
-          event.registrations = (event.registrations || 0) + 1;
-          await dbPut('events', event);
-          window.showToast(`You're going to ${event.title} 🐾`);
-        }
-        const { navigateTo } = await import('../router.js');
-        navigateTo('/');
+        this._openEventModal(container, eventId);
       });
     });
 
     // Update document title
     document.title = `${greeting}, ${first} — PawPrint`;
+  },
+
+  /** Event detail modal with RSVP and paid-ticket support (doc §5.28). */
+  async _openEventModal(container, eventId) {
+    const user = window.Auth.user;
+    const { dbGet, dbGetByIndex, dbPut, dbDelete } = await import('../db.js');
+    const event = await dbGet('events', eventId);
+    if (!event) return;
+
+    const rsvps = await dbGetByIndex('eventRsvps', 'userId', user.id);
+    const going = rsvps.some((r) => r.eventId === eventId);
+    const full = event.capacity && (event.registrations || 0) >= event.capacity;
+    const when = new Date(event.date);
+    const allRsvps = await dbGetByIndex('eventRsvps', 'eventId', eventId);
+
+    const modalRoot = document.createElement('div');
+    modalRoot.className = 'pp-modal-host';
+    modalRoot.innerHTML = `
+      <div class="pp-modal-overlay" id="event-modal">
+        <div class="pp-modal">
+          <div class="pp-modal-head"><h3>${escapeHtml(event.title)}</h3><button class="pp-modal-close" aria-label="Close">✕</button></div>
+          <div class="pp-event-modal-body">
+            <div class="pp-event-detail-row">${icon('compass', 16)} <span>${when.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })} · ${when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span></div>
+            <div class="pp-event-detail-row">${icon('map-pin', 16)} <span>${escapeHtml(event.location)}</span></div>
+            <div class="pp-event-detail-row">${icon('users', 16)} <span>${event.registrations || 0} / ${event.capacity} going</span></div>
+            <p class="pp-event-detail-desc">${escapeHtml(event.description)}</p>
+            <div class="pp-event-detail-row">${icon('shield-check', 16)} <span>Organiser: ${escapeHtml(event.organiser)}</span></div>
+            ${event.priceKes ? `<div class="pp-event-detail-row">${icon('star', 16)} <span>Ticket: KES ${event.priceKes.toLocaleString()}</span></div>` : '<div class="pp-event-detail-row">${icon(\'star\', 16)} <span>Free entry</span></div>'}
+          </div>
+          <div class="pp-modal-actions">
+            ${event.priceKes
+              ? `<button class="pp-btn pp-btn-solid pp-btn-md js-buy-ticket">${icon('message-circle', 15)} ${going ? 'You\'re booked' : `Book ticket — KES ${event.priceKes}`}</button>`
+              : going
+                ? `<button class="pp-btn pp-btn-outline pp-btn-md" disabled>${icon('check', 15)} You're going</button>`
+                : `<button class="pp-btn pp-btn-solid pp-btn-md js-event-rsvp">${icon('plus', 15)} RSVP — join ${allRsvps.length + 1} going</button>`}
+            ${going ? `<button class="pp-btn pp-btn-ghost pp-btn-md js-unrsvp">Leave event</button>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+    container.appendChild(modalRoot);
+
+    const close = () => modalRoot.remove();
+    modalRoot.querySelectorAll('.pp-modal-close').forEach((b) => b.addEventListener('click', close));
+    modalRoot.querySelector('.pp-modal-overlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) close();
+    });
+
+    const refresh = async () => {
+      window.showToast(`You're going to ${event.title} 🐾`);
+      close();
+      const { navigateTo } = await import('../router.js');
+      navigateTo('/');
+    };
+
+    const rsvpBtn = modalRoot.querySelector('.js-event-rsvp');
+    if (rsvpBtn) {
+      rsvpBtn.addEventListener('click', async () => {
+        if (event.capacity && (event.registrations || 0) >= event.capacity) {
+          window.showToast('This event is full.');
+          return;
+        }
+        await dbPut('eventRsvps', { eventId, userId: user.id, createdAt: new Date().toISOString() });
+        event.registrations = (event.registrations || 0) + 1;
+        await dbPut('events', event);
+        await refresh();
+      });
+    }
+
+    const unrsvpBtn = modalRoot.querySelector('.js-unrsvp');
+    if (unrsvpBtn) {
+      unrsvpBtn.addEventListener('click', async () => {
+        const mine = await dbGetByIndex('eventRsvps', 'userId', user.id);
+        const existing = mine.find((r) => r.eventId === eventId);
+        if (existing) await dbDelete('eventRsvps', existing.id);
+        event.registrations = Math.max(0, (event.registrations || 1) - 1);
+        await dbPut('events', event);
+        await refresh();
+      });
+    }
+
+    const buyBtn = modalRoot.querySelector('.js-buy-ticket');
+    if (buyBtn) {
+      buyBtn.addEventListener('click', async () => {
+        const { Payments } = await import('../components/payments.js');
+        const outcome = await Payments.openCheckout({
+          purpose: 'event_ticket',
+          purposeId: `event_${eventId}`,
+          label: `Ticket — ${event.title}`,
+          amount: event.priceKes,
+          currency: 'KES',
+          userId: user.id,
+        });
+        if (outcome !== 'paid' && outcome !== 'bank_pending') return;
+        // Book the paid ticket
+        if (event.capacity && (event.registrations || 0) >= event.capacity) {
+          window.showToast('Fully booked — your payment will be refunded.');
+          return;
+        }
+        await dbPut('eventRsvps', { eventId, userId: user.id, createdAt: new Date().toISOString(), paid: true, amountKes: event.priceKes });
+        event.registrations = (event.registrations || 0) + 1;
+        await dbPut('events', event);
+        await refresh();
+      });
+    }
   },
 };

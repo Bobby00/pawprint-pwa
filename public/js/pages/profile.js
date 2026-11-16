@@ -106,13 +106,13 @@ export const ProfilePage = {
               const primary = p.photos && p.photos.length ? p.photos[0].url : images[i % images.length];
               return `
                 <div class="pp-discovery-card" data-pet="${p.id}">
-                  <span class="pp-discovery-image"><img src="${primary}" alt="${p.name}" loading="lazy" /><span class="pp-discovery-category">${p.species}</span></span>
+                  <span class="pp-discovery-image"><img src="${primary}" alt="${p.name}" loading="lazy" data-lightbox="pet-${p.id}" data-lightbox-src="${primary}" data-lightbox-caption="${escapeHtml(p.name)}" /><span class="pp-discovery-category">${p.species}</span></span>
                   <span class="pp-discovery-details">
                     <span><strong>${escapeHtml(p.name)}</strong><span>${p.breed || p.species}${p.age ? ` · ${p.age} yr` : ''} · ${(p.photos || []).length} photo${(p.photos || []).length === 1 ? '' : 's'}</span></span>
                     <span class="pp-rating">${icon('star', 13, { fill: 'currentColor' })} ${(p.achievements || []).length}</span>
                   </span>
                   <div class="pp-pet-photos">
-                    ${(p.photos || []).slice(0, 4).map((photo, j) => `<span class="pp-pet-photo-thumb"><img src="${photo.url}" alt="${escapeHtml(photo.name || p.name)}" /><button class="pp-pet-photo-remove" data-pet="${p.id}" data-index="${j}" aria-label="Remove photo">✕</button></span>`).join('')}
+                    ${(p.photos || []).slice(0, 4).map((photo, j) => `<span class="pp-pet-photo-thumb"><img src="${photo.url}" alt="${escapeHtml(photo.name || p.name)}" data-lightbox="pet-photos-${p.id}" data-lightbox-src="${photo.url}" data-lightbox-caption="${escapeHtml(photo.name || p.name)}" /><button class="pp-pet-photo-remove" data-pet="${p.id}" data-index="${j}" aria-label="Remove photo">✕</button></span>`).join('')}
                   </div>
                   <span class="pp-pet-photo-add">
                     <button class="pp-btn pp-btn-outline pp-btn-sm js-pet-photo" data-pet="${p.id}">${icon('image', 13)} Add photo</button>

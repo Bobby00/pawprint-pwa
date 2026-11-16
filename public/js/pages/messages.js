@@ -34,8 +34,9 @@ export async function refreshMessageBadge() {
     }
     const unread = await countUnread(user.id);
     dots.forEach((d) => {
-      d.style.display = unread ? 'grid' : 'none';
+      if (!unread) { d.style.display = 'none'; return; }
       d.textContent = String(unread);
+      d.style.display = 'grid';
     });
   } catch (e) { /* badge is best-effort */ }
 }
