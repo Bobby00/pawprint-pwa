@@ -14,10 +14,10 @@ const NAV_ITEMS = [
 
 // Secondary destinations
 const MORE_ITEMS = [
-  { label: 'Messages', to: '/messages', icon: 'message-circle' },
-  { label: 'Challenges', to: '/challenges', icon: 'check' },
-  { label: 'Rewards', to: '/rewards', icon: 'sparkles' },
-  { label: 'Adopt a pet', to: '/adopt', icon: 'heart' },
+  { label: 'Messages', to: '/messages', icon: 'message-circle', badge: true },
+  { label: 'Challenges', to: '/challenges', icon: 'check', badge: true },
+  { label: 'Rewards', to: '/rewards', icon: 'sparkles', badge: true },
+  { label: 'Adopt a pet', to: '/adopt', icon: 'heart', badge: true },
   { label: 'Settings', to: '/settings', icon: 'settings' },
   { label: 'Business dashboard', to: '/dashboard', icon: 'settings', businessOnly: true },
   { label: 'Admin console', to: '/admin', icon: 'shield-check', adminOnly: true },
@@ -57,18 +57,18 @@ export const Nav = {
 
     const railMore = document.getElementById('rail-more');
     if (railMore) {
-      railMore.innerHTML = visible.map(({ label, to, icon: name }) => `
+      railMore.innerHTML = visible.map(({ label, to, icon: name, badge }) => `
         <a href="${to}" class="pp-rail-more-link" data-route="${to}" data-more-to="${to}">
-          ${icon(name, 16)}<span>${label}</span><span class="pp-count-badge" data-count-for="${to}" hidden>0</span>
+          ${icon(name, 16)}<span>${label}</span>${badge ? `<span class="pp-count-badge" data-count-for="${to}" hidden>0</span>` : ''}
         </a>
       `).join('');
     }
 
     const grid = document.getElementById('more-sheet-grid');
     if (grid) {
-      grid.innerHTML = visible.map(({ label, to, icon: name }) => `
+      grid.innerHTML = visible.map(({ label, to, icon: name, badge }) => `
         <a href="${to}" class="pp-more-tile" data-route="${to}" data-more-to="${to}">
-          <span class="pp-more-tile-icon">${icon(name, 22)}<span class="pp-count-badge pp-count-badge-on-icon" data-count-for="${to}" hidden>0</span></span>
+          <span class="pp-more-tile-icon">${icon(name, 22)}${badge ? `<span class="pp-count-badge pp-count-badge-on-icon" data-count-for="${to}" hidden>0</span>` : ''}</span>
           <span>${label}</span>
         </a>
       `).join('');
